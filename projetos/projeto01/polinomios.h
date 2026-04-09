@@ -6,9 +6,9 @@
 uint32_t *multiplica_simples(uint32_t n, const uint32_t *coef1, const uint32_t *coef2) {
     uint32_t *resultado = (uint32_t *)calloc(2 * n - 1, sizeof(uint32_t));
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            resultado[i + j] = coef1[i] * coef2[j];
+    for (uint32_t i = 0; i < n; i++) {
+        for (uint32_t j = 0; j < n; j++) {
+            resultado[i + j] += coef1[i] * coef2[j];
         }
     }
     return resultado;
@@ -23,52 +23,52 @@ uint32_t *multiplica_polinomio(uint32_t grau, const uint32_t *coef1, const uint3
     }
 
     uint32_t m = n / 2;
-    uint32_t grau_dir = m - 1;
-    uint32_t grau_esq = (n - m) - 1;
+    uint32_t n_alta = n - m;
+    uint32_t n_baixa = m;
 
-    uint32_t *P0 = multiplica_polinomio(grau_dir, coef1, coef2);
+    uint32_t *P_alta = multiplica_polinomio(n_alta - 1, coef1, coef2);
 
-    uint32_t *P2 = multiplica_polinomio(grau_esq, coef1 + m, coef2 + m);
+    uint32_t *P_baixa = multiplica_polinomio(n_baixa, coef1 + m, coef2 + m);
 
-    uint32_t max_n_S = (n - m);
+    uint32_t max_n_S = n_alta;
 
     uint32_t *S0 = (uint32_t *)calloc(max_n_S, sizeof(uint32_t));
     uint32_t *S1 = (uint32_t *)calloc(max_n_S, sizeof(uint32_t));
 
-    for (int i = 0; i < max_n_S; i++) {
-        if (i < m) {
-            S0[i] = coef1[i] + coef1[i + m];
-            S1[i] = coef2[i] + coef2[i + m];
-        }
-        else {
-            S0[i] = coef1[i + m];
-            S1[i] = coef2[i + m];
+    for (uint32_t i = 0; i < max_n_S; i++) {
+        S0[i] = coef1[i];
+        S1[i] = coef2[i];
+
+        uint32_t index_baixa = i - (n_alta - n_baixa);
+
+        if (index_baixa >= 0) {
+            S0[i] += coef1[n_alta + index_baixa];
+            S1[i] += coef2[n_alta + index_baixa];
         }
     }
 
-    uint32_t *P1 = multiplica_polinomio(max_n_S - 1, S0, S1);
+    uint32_t *P_misto = multiplica_polinomio(max_n_S - 1, S0, S1);
 
     uint32_t *resultado = (uint32_t *)calloc(2 * n - 1, sizeof(uint32_t));
 
-    for (int i = 0; i < 2 * (grau_dir + 1) - 1; i++) {
-        resultado[i] += P0[i];
+    for (uint32_t i = 0; i < 2 * n_alta - 1; i++) {
+        resultado[i] += P_alta[i];
     }
 
-    for (int i = 0; i < 2 * (grau_esq + 1) - 1; i++) {
-        resultado[i + 2 * m] += P2[i];
+    for (uint32_t i = 0; i < 2 * n_baixa - 1; i++) {
+        resultado[i + 2 * n_alta] += P_baixa[i];
     }
 
-    uint32_t tam_P1 = 2 * max_n_S - 1;
-    for (int i = 0; i < tam_P1; i++) {
-        uint32_t val_p0 = (i < (2 * (grau_dir + 1) - 1)) ? P0[i] : 0;
-        uint32_t val_p2 = (i < (2 * (grau_esq + 1) - 1)) ? P2[i] : 0;
+    for (uint32_t i = 0; i < 2 * max_n_S - 1; i++) {
+        uint32_t val_alta = (i < (2 * n_alta - 1)) ? P_alta[i] : 0;
+        uint32_t val_baixa = (i < (2 * n_baixa - 1)) ? P_baixa[i] : 0;
     
-        resultado[i + m] += (P1[i] - val_p0 - val_p2);
+        resultado[i + n_baixa] += (P_misto[i] - val_alta - val_baixa);
     }
 
-    free(P0);
-    free(P1);
-    free(P2);
+    free(P_alta);
+    free(P_misto);
+    free(P_baixa);
     free(S0);
     free(S1);
 
@@ -78,9 +78,9 @@ uint32_t *multiplica_polinomio(uint32_t grau, const uint32_t *coef1, const uint3
 // Verifica erros
 int32_t avalia_polinomio(int32_t x, uint32_t grau, const uint32_t *coef)
 {
-    uint32_t resultado = (uint32_t)coef[grau];
+    uint32_t resultado = (uint32_t)coef[0];
 
-    for (int i = (int)grau - 1; i >= 0; i--) {
+    for (uint32_t i = 1; i <= grau; i++) {
         resultado = (resultado * x) + (int32_t)coef[i];
     }
 
