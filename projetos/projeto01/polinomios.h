@@ -2,24 +2,90 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+// Multiplica polinonios utilizando metodo trivial
+uint32_t *multiplica_simples(uint32_t n, const uint32_t *coef1, const uint32_t *coef2) {
+    uint32_t *resultado = (uint32_t *)calloc(2 * n - 1, sizeof(uint32_t));
 
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            resultado[i + j] = coef1[i] * coef2[j];
+        }
+    }
+    return resultado;
+}
 
-uint32_t *multiplica_polinomio(uint32_t grau, const uint32_t *coef1, const uint32_t *coef2)
-{
-    // Você deve implementar essa função
-    // Os dois polinômios de entrada têm grau "grau", ou seja, cada um tem "grau + 1" coeficientes.
-    // O resultado da multiplicação terá grau no máximo 2*grau, ou seja, terá no máximo 2*grau + 1 coeficientes.
-    // Você deve implementar a multiplicação usando o método de Karatsuba, que é mais eficiente do que o método ingênuo para polinômios de grau grande.
-    // Você pode criar sub-funções auxiliares
+// Multiplica polinomions utilizando Karatsuba
+uint32_t *multiplica_polinomio(uint32_t grau, const uint32_t *coef1, const uint32_t *coef2){
+    uint32_t n = grau + 1;
+
+    if (grau <= 16) {
+        return multiplica_simples(n, coef1, coef2);
+    }
+
+    uint32_t m = n / 2;
+    uint32_t grau_dir = m - 1;
+    uint32_t grau_esq = (n - m) - 1;
+
+    uint32_t *P0 = multiplica_polinomio(grau_dir, coef1, coef2);
+
+    uint32_t *P2 = multiplica_polinomio(grau_esq, coef1 + m, coef2 + m);
+
+    uint32_t max_n_S = (n - m);
+
+    uint32_t *S0 = (uint32_t *)calloc(max_n_S, sizeof(uint32_t));
+    uint32_t *S1 = (uint32_t *)calloc(max_n_S, sizeof(uint32_t));
+
+    for (int i = 0; i < max_n_S; i++) {
+        if (i < m) {
+            S0[i] = coef1[i] + coef1[i + m];
+            S1[i] = coef2[i] + coef2[i + m];
+        }
+        else {
+            S0[i] = coef1[i + m];
+            S1[i] = coef2[i + m];
+        }
+    }
+
+    uint32_t *P1 = multiplica_polinomio(max_n_S - 1, S0, S1);
+
+    uint32_t *resultado = (uint32_t *)calloc(2 * n - 1, sizeof(uint32_t));
+
+    for (int i = 0; i < 2 * (grau_dir + 1) - 1; i++) {
+        resultado[i] += P0[i];
+    }
+
+    for (int i = 0; i < 2 * (grau_esq + 1) - 1; i++) {
+        resultado[i + 2 * m] += P2[i];
+    }
+
+    uint32_t tam_P1 = 2 * max_n_S - 1;
+    for (int i = 0; i < tam_P1; i++) {
+        uint32_t val_p0 = (i < (2 * (grau_dir + 1) - 1)) ? P0[i] : 0;
+        uint32_t val_p2 = (i < (2 * (grau_esq + 1) - 1)) ? P2[i] : 0;
+    
+        resultado[i + m] += (P1[i] - val_p0 - val_p2);
+    }
+
+    free(P0);
+    free(P1);
+    free(P2);
+    free(S0);
+    free(S1);
+
+    return resultado;
 }
 
 // Verifica erros
 int32_t avalia_polinomio(int32_t x, uint32_t grau, const uint32_t *coef)
 {
-    // Você deve implementar essa função
-    // Avalia o polinômio de grau "grau" com coeficientes "coef" no ponto "x"
-}
+    uint32_t resultado = (uint32_t)coef[grau];
 
+    for (int i = (int)grau - 1; i >= 0; i--) {
+        resultado = (resultado * x) + (int32_t)coef[i];
+    }
+
+    return resultado;
+}
 
 // Decodifica
 uint32_t *divide_por_binomio(uint32_t grau, uint32_t *coef, int32_t raiz)
@@ -52,7 +118,6 @@ uint32_t *decodifica_mensagem(uint32_t grau, uint32_t *coef, uint32_t n_raizes, 
     }
     return coeficientes;
 }
-
 
 _Bool verifica_erros(uint32_t grau, const uint32_t *coef, uint32_t n_raizes, const int32_t *raizes)
 {
