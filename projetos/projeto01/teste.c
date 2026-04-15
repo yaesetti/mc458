@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
             };
 
             // Exibe o polinômio resultante da multiplicação
-            imprime_polinomio(grau * 2, P);
+            //imprime_polinomio(grau * 2, P);
 
             adiciona_ruido(grau * 2, P, 5); // Adiciona ruído em 5 coeficientes aleatórios
             if(verifica_erros(grau * 2, P, grau, raizes)){
