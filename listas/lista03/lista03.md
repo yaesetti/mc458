@@ -36,6 +36,39 @@
 06      MinHeapify(V, 1, n)
 ```
 
+## Questão 2
+
+- Sabendo que o heap possuirá uma tupla `(valor, index)` ao invés de simplesmente o campo `valor`
+- Utilizando funções semelhantes às já ensinadas em aula
+- Assumindo que os vetores são 1-indexados
+
+```c++
+  KMerge(k, n, vetores):
+01  index_atual = CreateVector(k)
+02  heap = CreateEmptyMinHeap(k)
+03  tamanho_heap = k
+04  
+05  for (i = 1; i <= k; i++):
+06      heap[i] = (vetores[i][1], i)
+07  
+08  BuildMinHeap(heap, k)
+09  
+10  V = CreateVector(n)
+11  for (i = 1; i <= n; i++):
+12      (min, v_origem) = heap[1]
+13      V[i] = min
+14      index_atual[v_origem] += 1
+15  
+16      if (index_atual[v_origem] > n/k ):
+17          Swap(heap, tamanho_heap, 1)
+18          tamanho_heap -= 1
+19      else:
+20          proxima_pos = index_atual[v_origem]
+21          heap[1] = (vetores[v_origem][proxima_pos], v_origem)
+22      MinHeapify(heap, 1, tamanho_heap)
+23  return V
+```
+
 ## Questão 3
 #### Demonstrando por Contradição:
 
@@ -76,6 +109,32 @@ $$
 $$
 
 Como $log_2(n)$ cresce com relação a $n$, teríamos que a constante $c$ dependeria de $n$, o que gera uma contradição com a hipótese inicial.
+
+## Questão 4
+
+- Assumindo que a altura de uma árvore é 1-indexado
+
+```c++
+  CalculaAlturaEDiametro(A):
+01  if (A == NULL):
+02      return (0, 0)
+03  
+04  (alt_esq, diam_esq) = CalculaAlturaEDiametro(A.esq)
+05  (alt_dir, diam_dir) = CalculaAlturaEDiametro(A.dir)
+06  
+07  alt_atual = max(alt_esq, alt_dir) + 1
+08  diam_por_mim = alt_esq + alt_dir
+09  
+10  diam_max_atual = max(diam_por_mim, diam_esq, diam_dir)
+11  
+12  return (alt_atual, diam_max_atual)
+```
+
+```c++
+  EncontraDiametroTotal(A):
+01  (altura, diametro) = CalculaAlturaEDiametro(A)
+02  return diametro
+```
 
 ## Questão 5
 ### a) Algoritmo de complexidade $O(nlog(k))$
@@ -133,6 +192,24 @@ Como $log_2(n)$ cresce com relação a $n$, teríamos que a constante $c$ depend
 22      resultados[i] = temp[i]
 23  
 24  return resultados
+```
+
+## Questão 6
+
+- Modificando a função `Mediana(V)` para `Mediana(V, i, f)` por conveniência
+- Assumindo que a função `Mediana(V, i, f)` não modifica o vetor `V`
+
+```c++
+  QuicksortMediana(V, i, f):
+01  if (i >= f):
+02      return
+03  
+04  valor_pivo = Mediana(V, i, f)
+05  
+06  index_pivo = Particiona(V, i, f, valor_pivo)
+07  
+08  QuicksortMediana(V, i, index_pivo - 1)
+09  QuicksortMediana(V, index_pivo + 1, f)
 ```
 
 ## Questão 7
