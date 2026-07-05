@@ -1,4 +1,4 @@
-# Lista 03 - Victor Yaegashi Setti - RA 206362
+# Lista 04 - Victor Yaegashi Setti - RA 206362
 
 ## Questão 1
 ### a) Relação:
@@ -109,7 +109,7 @@ $\Rightarrow T_{total} = T_1 + T_2 + T_3 = O(n) + O(n.logn) + O(n) = O(n.logn)$
 ## Questão 5
 
 - Supondo que a função `empty_matrix(i, j)` aloca uma matrix zerada de `i` linhas e `j` colunas
-- Para fins de simplificação adotaremos c[i] = ci e g[i] = gi
+- Para fins de simplificação adotaremos `c[i]` = `ci` e `g[i]` = `gi`
 
 ```c++
   EscolheDadosPD(n, g, s, N, K):
